@@ -1,34 +1,35 @@
-#ifndef __MOTIF_TREE_BASE__
-#define __MOTIF_TREE_BASE__
+#pragma once __MOTIF_TREE_BASE__
 
 #include <iostream>
 #include <string>
-#include <bitset>
-#include <vector>
 #include "utils.h"
 
 #define POOL_SIZE 1024
 
-struct TreeNodeFast 
+struct TreeNodeFast
 {
-  union 
+  union
   {
-    struct 
+    struct
     {
-      TreeNodeFast* children[4];  // TODO make dynamic
+      TreeNodeFast* children[4]; // TODO make dynamic
       size_t sharing_info;
     };
+
     TreeNodeFast* next;
   };
+
   static TreeNodeFast* free_head;
-  static TreeNodeFast* allocateNode() 
+
+  static TreeNodeFast* allocateNode()
   {
-    if (!free_head) 
+    if (!free_head)
     {
       free_head = new TreeNodeFast[POOL_SIZE];
       TreeNodeFast* head = free_head;
-      for (uint32_t i = 1; i < POOL_SIZE; i++) {
-        head->next = head+1;
+      for (uint32_t i = 1; i < POOL_SIZE; i++)
+      {
+        head->next = head + 1;
         head++;
       }
       head->next = 0;
@@ -38,12 +39,14 @@ struct TreeNodeFast
     memset((char*)head, 0, sizeof(TreeNodeFast));
     return head;
   }
-  static void deallocateNode(TreeNodeFast* node) 
+
+  static void deallocateNode(TreeNodeFast* node)
   {
     node->next = free_head;
     free_head = node;
   }
-  void print() 
+
+  void print()
   {
     std::cout << "Node " << this << ", sharing info=" << sharing_info << std::endl;
     // for (size_t j=0; j<domain_size; j++) 
@@ -53,7 +56,7 @@ struct TreeNodeFast
   }
 };
 
-class MotifTreeBase 
+class MotifTreeBase
 {
 protected:
   string domain;
@@ -64,15 +67,23 @@ protected:
   std::string x;
   uint32_t mask;
   std::string name;
-  Motifs &motifs;
+  Motifs& motifs;
 
 public:
-  virtual void traverseRecursive(TreeNodeFast* node, uint32_t depth) {}
-  virtual void insertRecursive(TreeNodeFast* node, const std::string& motif, uint32_t depth) {}
-  virtual void intersectRecursive(TreeNodeFast* to, const TreeNodeFast* from, uint32_t depth) {}
-  
+  virtual void traverseRecursive(TreeNodeFast* node, uint32_t depth)
+  {
+  }
+
+  virtual void insertRecursive(TreeNodeFast* node, const std::string& motif, uint32_t depth)
+  {
+  }
+
+  virtual void intersectRecursive(TreeNodeFast* to, const TreeNodeFast* from, uint32_t depth)
+  {
+  }
+
   MotifTreeBase(uint32_t _max_depth, Motifs& _motifs, const char* _name);
-  ~MotifTreeBase();
+  virtual ~MotifTreeBase();
 
   virtual void setDomain(const string& _domain);
   virtual void traverse();
@@ -80,6 +91,4 @@ public:
   virtual void insert(const std::string& motif);
   virtual void intersect(const MotifTreeBase* other);
 };
-
-#endif // __MOTIF_TREE_BASE__
 
